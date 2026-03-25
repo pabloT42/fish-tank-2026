@@ -22,7 +22,7 @@ text4=font1.render("fish collection book",True,(0,0,0))
 # ========= FISH =========
 class Fish:#tbh i just copy andd paste
     def __init__(self):
-        self.fishImage = pygame.image.load("BlueFish.png").convert_alpha()
+        self.fishImage = pygame.image.load("fish3.png").convert_alpha()
         pygame.Surface.set_colorkey(self.fishImage, [255,0,255])
         self.xpos = random.randint(0, 750)
         self.ypos = random.randint(0, 550)
@@ -59,7 +59,7 @@ class Fish:#tbh i just copy andd paste
             self.xDir *= -1
         if self.ypos <= 0 or self.ypos >= 550:
             self.yDir *= -1
-        
+       
     def draw(self):
         screen.blit(self.fishImage, (self.xpos, self.ypos))
 
@@ -108,7 +108,7 @@ class ttankstate:
         self.bg_color = (0, 100,0)
         self.door = pygame.Rect(10, 10, 50, 50)
 
-        # fish stuff 
+        # fish stuff
         self.fish = Fish()
 
         self.food_size = 10
@@ -116,6 +116,8 @@ class ttankstate:
         self.food_y = 0
         self.food_falling = False
         self.food_speed = 1
+        self.plus_size = 50
+        self.food_alive = False
 
         self.button_rect = pygame.Rect(650, 10, 140, 40)
         self.font = pygame.font.SysFont(None, 24)
@@ -135,14 +137,25 @@ class ttankstate:
 
         if fish_rect.colliderect(food_rect):
             self.food_falling = False
-            self.fish.fishImage = pygame.transform.scale(
-                self.fish.fishImage,
-                (self.fish.fishImage.get_width()+2,
-                 self.fish.fishImage.get_height()+2)
-            )
+           
+               
+           
+            Maxwidth = 200
 
-        if self.food_y > 900:
-            self.food_falling = False
+            if self.fish.fishImage.get_width() <self.plus_size and self.food_alive == True:
+                self.fish.fishImage = pygame.transform.scale(
+                    self.fish.fishImage,
+                    (self.fish.fishImage.get_width() * 1.3,
+                     self.fish.fishImage.get_height() * 1.3)
+                )
+                self.food_alive = False #stops infinite growth while colliding
+            #  NEED THE LIMIT FOR THE GROwING
+
+
+
+            if self.food_y > 900:
+                self.food_falling = False
+                self.food_alive = False
 
     def draw(self):
         screen.fill(self.bg_color)
@@ -194,7 +207,7 @@ tutorial = HouseState()
 tropical = ttankstate()
 fresh = fwtankstate()
 fishcaught = fishdexstate()
-current_state = main 
+current_state = main
 
 
 # Game loop
@@ -229,16 +242,19 @@ while running:
             elif current_state == fishcaught and fishcaught.door.collidepoint(mx, my):
                 current_state = main
 
-            # botón comida 
+            # Food Button
             if current_state == tropical:
                 if tropical.button_rect.collidepoint(mx, my):
                     if tropical.food_falling == False:
                         tropical.food_x = random.randint(10, 790)
                         tropical.food_y = 0
                         tropical.food_falling = True
+                        tropical.food_alive = True
+
 
     current_state.update()
     current_state.draw()
     pygame.display.flip()
 
 pygame.quit()
+
